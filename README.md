@@ -106,7 +106,8 @@ Run full Ubuntu verification (syntax + package build + smoke):
 
 CI release flow: pushing a `v*` tag triggers `.github/workflows/ubuntu-ui-release.yml`
 to verify, build, checksum, and attach Ubuntu artifacts (`.deb`, optional
-`.AppImage`, `ubuntu-ui.sha256`) to the GitHub Release.
+`.AppImage`, `ubuntu-ui.sha256`) to the GitHub Release. Artifact versioning
+is derived from the tag name (for example `v0.2.1` → `0.2.1`).
 
 Release prep helper:
 

@@ -25,7 +25,9 @@ jobs:
         run: ./scripts/verify-ubuntu-ui.sh
 
       - name: Build Ubuntu package artifacts
-        run: ./scripts/build-ubuntu-packages.sh
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          OS1_UBUNTU_UI_VERSION="$VERSION" ./scripts/build-ubuntu-packages.sh
 
       - name: Generate SHA256 checksums
         run: |
