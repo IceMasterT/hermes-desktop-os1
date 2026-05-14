@@ -47,10 +47,96 @@ installation, and the websocket terminal automatically. For SSH
 connections, the host needs `python3` on the non-interactive SSH PATH
 and Hermes already installed.
 
+### Linux note
+
+The original native app remains macOS-only (`SwiftUI` + `AppKit`), and
+this repo now also ships an Ubuntu desktop UI shell at
+`linux-ui/os1_ubuntu_ui.py`.
+
+Run on Ubuntu:
+
+```sh
+./scripts/run-ubuntu-ui.sh
+```
+
+Build installable Ubuntu artifacts:
+
+```sh
+./scripts/build-ubuntu-packages.sh
+```
+
+Full Ubuntu install/run guide:
+[`docs/ubuntu-installation.md`](docs/ubuntu-installation.md)
+
+This generates `dist/linux/os1-ubuntu-ui_<version>_amd64.deb` and, if
+`appimagetool` is installed, an AppImage in `dist/linux/`.
+
+Current Ubuntu UI includes desktop sections (Connections, Sessions,
+Files, Terminal, Kanban, Skills, Cron) with local persistence under
+`~/.config/os1-linux/` (`connections.json`, `sessions.json`,
+`kanban.json`, `skills.json`, `cron.json`, `settings.json`), local file editing, and an
+in-app terminal runner with default safe-mode command blocking for
+destructive commands. SSH connections can be tested from the Connections
+tab and used for remote terminal command execution after marking one
+connection as Active. The Connections tab also supports saving an Orgo
+API key and fetching workspace summaries from `GET /api/projects`, plus
+creating new Linux computers from `POST /api/computers` defaults.
+Workspaces and computers are selectable in the Connections tab, and a
+selected computer can be mapped directly into an existing Orgo
+connection profile as its active computer ID. You can also create a new
+Orgo connection directly from the selected computer in one click.
+
+On first launch, the Ubuntu UI offers a quick setup wizard for initial
+Orgo key save + workspace fetch + first connection setup.
+
+Connections view also supports profile import/export (JSON backup/restore)
+for Ubuntu local data sets.
+
+Smoke-check a built Ubuntu package:
+
+```sh
+./scripts/smoke-ubuntu-package.sh
+```
+
+Run full Ubuntu verification (syntax + package build + smoke):
+
+```sh
+./scripts/verify-ubuntu-ui.sh
+```
+
+CI release flow: pushing a `v*` tag triggers `.github/workflows/ubuntu-ui-release.yml`
+to verify, build, checksum, and attach Ubuntu artifacts (`.deb`, optional
+`.AppImage`, `ubuntu-ui.sha256`) to the GitHub Release.
+
+Release prep helper:
+
+```sh
+./scripts/prepare-ubuntu-release.sh 0.2.0
+```
+
+This runs Ubuntu verification, builds versioned artifacts, and prints the
+exact git tag/push steps.
+
+Security hardening option:
+
+```sh
+OS1_DISALLOW_PLAINTEXT_KEY_FALLBACK=1 ./scripts/run-ubuntu-ui.sh
+```
+
+When enabled, saving Orgo API keys requires `secret-tool` (GNOME Keyring)
+and refuses plaintext fallback.
+
+On Ubuntu, Orgo API keys are stored in GNOME Keyring via
+`secret-tool` when available; otherwise OS1 falls back to
+`~/.config/os1-linux/settings.json`.
+
 ## Install
 
 Download the latest `OS1.app.zip` from the GitHub Releases page,
 unzip it, drag `OS1.app` into `/Applications`, and launch.
+
+Full macOS install/run guide:
+[`docs/macos-installation.md`](docs/macos-installation.md)
 
 The build is universal (Apple Silicon + Intel) and ad-hoc signed.
 On first launch macOS may say it can't verify the developer — right-click

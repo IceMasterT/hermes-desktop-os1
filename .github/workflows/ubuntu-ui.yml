@@ -1,0 +1,50 @@
+name: Ubuntu UI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-ubuntu-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Ubuntu UI dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-tk dpkg-dev
+
+      - name: Verify Ubuntu UI
+        run: ./scripts/verify-ubuntu-ui.sh
+
+  package-ubuntu-ui:
+    needs: verify-ubuntu-ui
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Ubuntu packaging dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-tk dpkg-dev
+
+      - name: Build Ubuntu package artifacts
+        run: ./scripts/build-ubuntu-packages.sh
+
+      - name: Upload Ubuntu package artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-ui-packages
+          path: |
+            dist/linux/*.deb
+            dist/linux/*.AppImage
+          if-no-files-found: warn

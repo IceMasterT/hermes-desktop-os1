@@ -1,0 +1,75 @@
+name: Ubuntu UI Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-ubuntu-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Ubuntu packaging dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-tk dpkg-dev
+
+      - name: Verify Ubuntu UI
+        run: ./scripts/verify-ubuntu-ui.sh
+
+      - name: Build Ubuntu package artifacts
+        run: ./scripts/build-ubuntu-packages.sh
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd dist/linux
+          shasum -a 256 *.deb > ubuntu-ui.sha256
+          if ls *.AppImage >/dev/null 2>&1; then
+            shasum -a 256 *.AppImage >> ubuntu-ui.sha256
+          fi
+
+      - name: Generate release notes
+        run: |
+          cat > dist/linux/ubuntu-ui-release-notes.md <<'EOF'
+          ## Ubuntu UI Artifacts
+
+          This release includes installable Ubuntu assets for OS1 UI:
+
+          - `.deb` package
+          - Optional `.AppImage`
+          - `ubuntu-ui.sha256` checksums
+
+          ### Install (.deb)
+
+          ```bash
+          sudo dpkg -i os1-ubuntu-ui_*.deb
+          ```
+
+          ### Verify checksum
+
+          ```bash
+          shasum -a 256 -c ubuntu-ui.sha256
+          ```
+
+          ### Run
+
+          ```bash
+          os1-ubuntu-ui
+          ```
+          EOF
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: dist/linux/ubuntu-ui-release-notes.md
+          files: |
+            dist/linux/*.deb
+            dist/linux/*.AppImage
+            dist/linux/ubuntu-ui.sha256

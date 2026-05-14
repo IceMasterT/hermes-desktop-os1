@@ -1,23 +1,38 @@
 // swift-tools-version: 6.1
 
 import PackageDescription
+import Foundation
 
-let package = Package(
-    name: "OS1",
-    defaultLocalization: "en",
-    platforms: [
-        .macOS(.v14)
-    ],
-    products: [
+let isLinux = ProcessInfo.processInfo.operatingSystemVersionString.lowercased().contains("linux")
+
+let products: [Product] = isLinux
+    ? [
+        .executable(
+            name: "OS1",
+            targets: ["OS1Linux"]
+        )
+    ]
+    : [
         .executable(
             name: "OS1",
             targets: ["OS1"]
         )
-    ],
-    dependencies: [
+    ]
+
+let dependencies: [Package.Dependency] = isLinux
+    ? []
+    : [
         .package(path: "Vendor/SwiftTerm")
-    ],
-    targets: [
+    ]
+
+let targets: [Target] = isLinux
+    ? [
+        .executableTarget(
+            name: "OS1Linux",
+            path: "Sources/OS1Linux"
+        )
+    ]
+    : [
         .executableTarget(
             name: "OS1",
             dependencies: [
@@ -34,4 +49,14 @@ let package = Package(
             path: "Tests/OS1Tests"
         )
     ]
+
+let package = Package(
+    name: "OS1",
+    defaultLocalization: "en",
+    platforms: isLinux ? nil : [
+        .macOS(.v14)
+    ],
+    products: products,
+    dependencies: dependencies,
+    targets: targets
 )

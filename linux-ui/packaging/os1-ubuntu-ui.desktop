@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=OS1 Ubuntu UI
+Comment=OS1 desktop interface for Ubuntu
+Exec=os1-ubuntu-ui
+Icon=os1-ubuntu-ui
+Terminal=false
+Categories=Development;Utility;
